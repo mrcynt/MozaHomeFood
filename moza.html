@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moza Home Food | Cita Rasa Rumahan Sejati</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #FAF7EE;
+            --bone-white: #FFFDF9; /* Putih Tulang */
+            --primary: #E45E05; /* Orange */
+            --secondary: #9D0610; /* Maroon */
+            --vine-color: #2D5A27;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            font-family: 'Inter', sans-serif;
+            color: #2D2D2D;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            color: var(--secondary);
+        }
+
+        /* Parallax Container */
+        .parallax-wrapper {
+            perspective: 10px;
+            height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        .parallax-bg {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            z-index: -1;
+            transform: translateZ(-5px) scale(1.6);
+            opacity: 0.1;
+            background-image: radial-gradient(var(--primary) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* Vine Animation (Tumbuhan Merambat) */
+        .vines-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 45;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .vine-element {
+            position: absolute;
+            height: 100vh;
+            width: 150px;
+            fill: none;
+            stroke: var(--vine-color);
+            stroke-width: 3;
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            transition: stroke-dashoffset 2s ease-out;
+        }
+
+        .vines-visible {
+            opacity: 0.6;
+        }
+
+        .vines-visible .vine-element {
+            stroke-dashoffset: 0;
+        }
+
+        /* Navbar active state */
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-link.active::after {
+            width: 100%;
+        }
+
+        /* Interactive Photo Gallery */
+        .gallery-wrap {
+            position: relative;
+            height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gallery-img {
+            position: absolute;
+            width: 240px;
+            height: 320px;
+            object-fit: cover;
+            border: 10px solid var(--bone-white);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+
+        .gallery-img:nth-child(1) { transform: rotate(-10deg) translateX(-80px); z-index: 1; }
+        .gallery-img:nth-child(2) { transform: rotate(5deg) translateY(-20px); z-index: 2; }
+        .gallery-img:nth-child(3) { transform: rotate(-5deg) translateX(80px) translateY(30px); z-index: 1; }
+
+        .gallery-img:hover {
+            transform: scale(1.1) rotate(0deg) !important;
+            z-index: 10;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+        }
+
+        /* Hero Image Parallax Wrapper */
+        .hero-parallax-img-wrap {
+            transition: transform 0.1s ease-out;
+        }
+
+        /* Card Parallax Image */
+        .parallax-card-img-container {
+            height: 240px;
+            overflow: hidden;
+            border-radius: 1.5rem 1.5rem 0 0;
+            position: relative;
+        }
+
+        .parallax-card-img {
+            width: 100%;
+            height: 140%;
+            object-fit: cover;
+            position: absolute;
+            top: -20%;
+            transition: transform 0.1s ease-out;
+        }
+
+        /* Merchant Icons */
+        .merchant-img {
+            width: auto;
+            height: 32px;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+        .merchant-img:hover { transform: scale(1.2); }
+
+        .merchant-icon {
+            width: 35px;
+            height: 35px;
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        .merchant-icon:hover { transform: scale(1.2); }
+
+        /* Floating Animation */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .float-element { animation: float 6s ease-in-out infinite; }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Button Consistency */
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--bone-white);
+            padding: 0.75rem 2rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid var(--primary);
+            display: inline-block;
+            text-align: center;
+        }
+        .btn-primary:hover {
+            background-color: var(--secondary);
+            border-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(157, 6, 16, 0.2);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--secondary);
+            padding: 0.75rem 2rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid var(--secondary);
+            display: inline-block;
+            text-align: center;
+        }
+        .btn-secondary:hover {
+            background-color: var(--secondary);
+            color: var(--bone-white);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(157, 6, 16, 0.2);
+        }
+
+        .logo-img {
+            max-height: 52px;
+            width: auto;
+            display: none; 
+            object-fit: contain;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-color); }
+        ::-webkit-scrollbar-thumb { background: var(--secondary); border-radius: 10px; }
+
+        .lang-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #4a4a4a;
+        }
+        .lang-item:hover {
+            background-color: #fceee4;
+            color: var(--primary);
+        }
+
+        /* Bone White Cards */
+        .bone-card {
+            background-color: var(--bone-white);
+            border-radius: 2rem;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+        .bone-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.1);
+        }
+    </style>
+    <script>
+        function handleLogoLoad() {
+            document.getElementById('main-logo').style.display = 'block';
+            document.getElementById('fallback-logo').style.display = 'none';
+        }
+        function handleLogoError() {
+            document.getElementById('main-logo').style.display = 'none';
+            document.getElementById('fallback-logo').style.display = 'block';
+        }
+    </script>
+</head>
+<body>
+
+    <!-- Vine Animations -->
+    <div id="vines-container" class="vines-overlay">
+        <svg class="vine-element left-0 top-0" viewBox="0 0 100 800">
+            <path d="M0,0 Q50,100 10,200 T40,400 T10,600 T50,800" />
+            <circle cx="10" cy="200" r="5" fill="#4A773C" />
+            <circle cx="40" cy="400" r="4" fill="#4A773C" />
+            <circle cx="10" cy="600" r="6" fill="#4A773C" />
+        </svg>
+        <svg class="vine-element right-0 top-0" viewBox="0 0 100 800">
+            <path d="M100,0 Q50,100 90,200 T60,400 T90,600 T50,800" />
+            <circle cx="90" cy="200" r="5" fill="#4A773C" />
+            <circle cx="60" cy="400" r="4" fill="#4A773C" />
+            <circle cx="90" cy="600" r="6" fill="#4A773C" />
+        </svg>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 px-6 py-2 flex justify-between items-center bg-[#FAF7EE]/90 backdrop-blur-md border-b border-orange-100 shadow-sm">
+        <a href="#home" class="flex items-center space-x-3 group">
+            <div class="logo-container">
+                <img id="main-logo" 
+                     src="https://lh3.googleusercontent.com/d/1-QmJH_5MDjQeP8qJrOkkvhMHDtnYOx8Q" 
+                     alt="Logo Moza" 
+                     class="logo-img" 
+                     onload="handleLogoLoad()"
+                     onerror="handleLogoError()">
+                <svg id="fallback-logo" class="w-11 h-11 text-accent-2" viewBox="0 0 100 100" fill="none">
+                    <circle cx="50" cy="50" r="48" stroke="currentColor" stroke-width="4"/>
+                    <path d="M30 70V30L50 50L70 30V70" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-xl font-bold text-[#9D0610] leading-none uppercase tracking-tight">Moza</span>
+                <span class="text-[10px] font-bold text-[#E45E05] tracking-[0.25em] uppercase leading-none mt-1">Home Food</span>
+            </div>
+        </a>
+        
+        <div class="hidden md:flex items-center space-x-8 font-medium">
+            <a href="#home" class="nav-link active" data-section="home" data-t="nav_home">Beranda</a>
+            <a href="#about" class="nav-link" data-section="about" data-t="nav_about">Tentang Kami</a>
+            <a href="#services" class="nav-link" data-section="services" data-t="nav_services">Layanan</a>
+            <a href="#menu" class="nav-link" data-section="menu" data-t="nav_menu">Menu</a>
+            <a href="#contact" class="nav-link" data-section="contact" data-t="nav_contact">Kontak</a>
+            
+            <div class="lang-dropdown">
+                <button onclick="toggleLangMenu(event)" class="flex items-center space-x-2 text-sm bg-orange-100 px-3 py-1.5 rounded-full text-[#E45E05] font-semibold border border-orange-200 hover:bg-orange-200 transition-colors">
+                    <span id="current-lang-text">ID</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                <div id="lang-menu" class="hidden" style="background-color: var(--bone-white);">
+                    <div class="lang-item" onclick="selectLanguage('id')"><span>🇮🇩</span> Indonesia</div>
+                    <div class="lang-item" onclick="selectLanguage('en')"><span>🇺🇸</span> English</div>
+                    <div class="lang-item" onclick="selectLanguage('cn')"><span>🇨🇳</span> 中文</div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="parallax-wrapper">
+        <div class="parallax-bg"></div>
+
+        <!-- Section Hero -->
+        <section id="home" class="relative min-h-screen flex items-center justify-center px-6 pt-20">
+            <div class="container mx-auto grid md:grid-cols-2 gap-12 items-center">
+                <div class="z-10">
+                    <span class="inline-block px-4 py-1 rounded-full bg-orange-100 text-[#E45E05] font-semibold text-sm mb-4" data-t="hero_tag">Cita Rasa Autentik</span>
+                    <h1 class="text-5xl md:text-7xl mb-6 leading-tight" data-t="hero_title">Kehangatan <br><span class="text-[#E45E05]">Dapur Rumah</span> di Meja Anda.</h1>
+                    <p class="text-lg text-gray-600 mb-8 max-w-md" data-t="hero_desc">Kami menyajikan hidangan pilihan dengan resep turun-temurun, menggunakan bahan segar berkualitas pikeun kabagjaan kulawarga.</p>
+                    <div class="flex space-x-4">
+                        <a href="#services" class="btn-primary shadow-lg" data-t="nav_services">Layanan</a>
+                        <a href="#about" class="btn-secondary" data-t="btn_about">Cerita Kami</a>
+                    </div>
+                </div>
+                <div class="relative flex justify-center">
+                    <!-- Combining Parallax (Wrapper) and Float (Inner Element) -->
+                    <div class="hero-parallax-img-wrap w-72 h-72 md:w-[450px] md:h-[450px] flex justify-center items-center">
+                        <div class="w-full h-full rounded-full overflow-hidden border-8 border-[#FFFDF9] shadow-2xl float-element">
+                            <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800" alt="Masakan Moza" class="w-full h-full object-cover">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Tentang Kami -->
+        <section id="about" class="min-h-screen py-24 px-6 bg-white/50">
+            <div class="container mx-auto">
+                <div class="flex flex-col md:flex-row items-center gap-16">
+                    <div class="w-full md:w-1/2 gallery-wrap reveal">
+                        <img src="https://lh3.googleusercontent.com/d/13Mc4Z0LU9r0Pi5LYbYp8RKTVFtWJkatw" class="gallery-img rounded-2xl" alt="Tentang Moza A">
+                        <img src="https://lh3.googleusercontent.com/d/1fyQrk0Rn_tAF5xtwStIimgCbH46yXAC_" class="gallery-img rounded-2xl" alt="Tentang Moza B">
+                        <img src="https://lh3.googleusercontent.com/d/1s6lGSL3vBtm7oB-G7R23WopDbNAZDvYy" class="gallery-img rounded-2xl" alt="Tentang Moza C">
+                    </div>
+                    <div class="w-full md:w-1/2 reveal">
+                        <h2 class="text-4xl md:text-5xl mb-8" data-t="about_title">Dibuat dengan <br><span class="text-[#E45E05]">Kasih Sayang</span></h2>
+                        <p class="text-gray-700 leading-relaxed mb-6 italic" data-t="about_quote">"Moza Home Food bermula dari keinginan sederhana: berbagi kelezatan masakan ibu kepada semua orang."</p>
+                        <p class="text-gray-600 mb-8" data-t="about_desc">Berdiri sejak 2018, kami berkomitmen untuk menjaga keaslian rasa. Tidak ada bahan pengawet, tidak ada rahasia—hanya dedikasi tinggi sareng bahan-bahan seger.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Layanan -->
+        <section id="services" class="min-h-screen py-24 px-6 relative overflow-hidden bg-white/30">
+            <div class="container mx-auto relative z-10">
+                <div class="text-center mb-20 reveal">
+                    <h2 class="text-4xl md:text-6xl mb-6" data-t="services_title">Solusi <span class="text-[#E45E05]">Katering</span> Kami</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto" data-t="services_desc">Kami siap menghadirkan kelezatan khas Moza untuk setiap momen spesial Anda.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                    <div class="bone-card reveal border-b-8 border-[#E45E05]">
+                        <div class="parallax-card-img-container">
+                            <img src="https://lh3.googleusercontent.com/d/1QvLBzw2l_WfJhj0Ojpgc0uUNnBYcm6Wd" class="parallax-card-img" alt="Katering Rumahan">
+                        </div>
+                        <div class="p-8 flex flex-col flex-grow">
+                            <h3 class="text-2xl mb-4 font-bold" data-t="s1_title">Katering Rumahan</h3>
+                            <p class="text-gray-600 mb-8 text-sm flex-grow" data-t="s1_desc">Nikmati menu bergizi seimbang setiap hari tanpa repot memasak. Cocok pikeun kulawarga.</p>
+                            <a href="#contact" class="btn-primary w-full mt-auto" data-t="btn_order">Pesan Sekarang</a>
+                        </div>
+                    </div>
+                    <div class="bone-card reveal border-b-8 border-[#9D0610]" style="transition-delay: 0.1s;">
+                        <div class="parallax-card-img-container">
+                            <img src="https://lh3.googleusercontent.com/d/1lBOnR9D4eUmJMk8mfwqqTIvoho6CEToI" class="parallax-card-img" alt="Katering Kantor">
+                        </div>
+                        <div class="p-8 flex flex-col flex-grow">
+                            <h3 class="text-2xl mb-4 font-bold" data-t="s2_title">Katering Kantor</h3>
+                            <p class="text-gray-600 mb-8 text-sm flex-grow" data-t="s2_desc">Solusi praktis untuk makan siang karyawan atau rapat penting kantor anjeun.</p>
+                            <a href="#contact" class="btn-primary w-full mt-auto" data-t="btn_order">Pesan Sekarang</a>
+                        </div>
+                    </div>
+                    <div class="bone-card reveal border-b-8 border-[#E45E05]" style="transition-delay: 0.2s;">
+                        <div class="parallax-card-img-container">
+                            <img src="https://lh3.googleusercontent.com/d/15W3oYajQ5dzNtRKhtQNbpGazgSSwxHzT" class="parallax-card-img" alt="Nasi Tumpeng">
+                        </div>
+                        <div class="p-8 flex flex-col flex-grow">
+                            <h3 class="text-2xl mb-4 font-bold" data-t="s3_title">Nasi Tumpeng</h3>
+                            <p class="text-gray-600 mb-8 text-sm flex-grow" data-t="s3_desc">Simbol syukur pikeun perayaan istiméwa. Dibuat dengan nasi kuning gurih dan lauk pauk komplit.</p>
+                            <a href="#contact" class="btn-primary w-full mt-auto" data-t="btn_order">Pesan Sekarang</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Menu -->
+        <section id="menu" class="py-24 px-6">
+            <div class="container mx-auto text-center mb-16">
+                <h2 class="text-4xl md:text-5xl mb-4" data-t="menu_title">Menu Pilihan</h2>
+            </div>
+            
+            <div class="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Gepuk Sapi -->
+                <div class="bone-card group reveal">
+                    <div class="parallax-card-img-container">
+                        <img src="https://lh3.googleusercontent.com/d/119gkCM3pc94GIexsSbFFwr9lvHN5IOqa" class="parallax-card-img" alt="Gepuk Sapi">
+                    </div>
+                    <div class="p-8 flex flex-col flex-grow">
+                        <h3 class="text-2xl mb-2 font-bold" data-t="m1_title">Gepuk Sapi</h3>
+                        <p class="text-gray-500 text-sm mb-6 flex-grow" data-t="m1_desc">Daging sapi empuk dengan bumbu rempah tradisional yang meresap sempurna.</p>
+                        <a href="#contact" class="btn-primary w-full mt-auto" data-t="btn_order">Pesan Sekarang</a>
+                    </div>
+                </div>
+
+                <!-- Ayam Goreng -->
+                <div class="bone-card group reveal" style="transition-delay: 0.1s;">
+                    <div class="parallax-card-img-container">
+                        <img src="https://lh3.googleusercontent.com/d/1w2glwilaEqFg84fGkbqx3USZnn_nl7Gt" class="parallax-card-img" alt="Ayam Goreng">
+                    </div>
+                    <div class="p-8 flex flex-col flex-grow">
+                        <h3 class="text-2xl mb-2 font-bold" data-t="m2_title">Ayam Goreng</h3>
+                        <p class="text-gray-500 text-sm mb-6 flex-grow" data-t="m2_desc">Hayam goréng bumbu konéng anu gurih, disajikeun sareng kremesan renyah.</p>
+                        <a href="#contact" class="btn-primary w-full mt-auto" data-t="btn_order">Pesan Sekarang</a>
+                    </div>
+                </div>
+
+                <!-- Sambal Goreng Kentang -->
+                <div class="bone-card group reveal" style="transition-delay: 0.2s;">
+                    <div class="parallax-card-img-container">
+                        <img src="https://lh3.googleusercontent.com/d/1m9hNCTMqxagUcQFr5FQ2uHicwkvNABLO" class="parallax-card-img" alt="Sambal Goreng Kentang">
+                    </div>
+                    <div class="p-8 flex flex-col flex-grow">
+                        <h3 class="text-2xl mb-2 font-bold" data-t="m3_title">Sambal Goreng Kentang</h3>
+                        <p class="text-gray-500 text-sm mb-6 flex-grow" data-t="m3_desc">Potongan kentang dadu dengan bumbu sambel goréng ati anu nikmat.</p>
+                        <a href="#contact" class="btn-primary w-full mt-auto" data-t="btn_order">Pesan Sekarang</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Kontak -->
+        <section id="contact" class="py-24 px-6 bg-[#9D0610] text-white overflow-hidden relative">
+            <div class="container mx-auto relative z-10">
+                <div class="max-w-4xl mx-auto flex flex-col md:flex-row gap-12 items-center">
+                    <div class="w-full md:w-1/2">
+                        <h2 class="text-4xl md:text-5xl mb-6 text-[#FFFDF9]" data-t="contact_title">Hubungi Kami.</h2>
+                        <div class="space-y-6">
+                            <div class="flex items-start space-x-4">
+                                <div class="p-3 rounded-lg" style="background-color: rgba(255, 253, 249, 0.1);">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#E45E05]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                </div>
+                                <!-- Interactive Google Maps Address Link (Fixed with provided link) -->
+                                <a href="https://maps.app.goo.gl/jYhEZ3hZpVn7QKUY7" target="_blank" class="group/map block">
+                                    <h4 class="font-bold text-[#FFFDF9] group-hover/map:text-[#E45E05] transition-colors">Alamat</h4>
+                                    <p class="text-orange-100 opacity-80 text-sm group-hover/map:opacity-100 group-hover/map:underline transition-all">kp Jl. Rancakendal, Jelegong, Kec. Rancaekek, Kabupaten Bandung, Jawa Barat 40394</p>
+                                </a>
+                            </div>
+                            <div class="flex items-start space-x-4">
+                                <div class="p-3 rounded-lg" style="background-color: rgba(255, 253, 249, 0.1);">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#E45E05]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-[#FFFDF9]">WhatsApp</h4>
+                                    <p class="text-orange-100 opacity-80 text-sm">082214155648</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="w-full md:w-1/2 p-8 rounded-[3rem] text-gray-800 shadow-2xl" style="background-color: var(--bone-white);">
+                        <form onsubmit="event.preventDefault(); window.open('https://wa.me/6282214155648')" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold mb-2" data-t="form_name">Nama</label>
+                                <input type="text" placeholder="Nama Anda" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#E45E05] bg-[#FFFDF9]">
+                            </div>
+                            <button type="submit" class="btn-primary w-full mt-4" data-t="btn_send">Chat via WhatsApp</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="py-12 px-6" style="background-color: var(--bone-white);">
+            <div class="container mx-auto flex flex-col md:flex-row justify-between items-center text-gray-500 text-sm">
+                <div class="mb-6 md:mb-0 text-center md:text-left">
+                    <span class="text-xl font-bold text-[#9D0610] leading-none uppercase tracking-tight">Moza</span> <span class="text-[#E45E05] font-bold">Home Food</span>
+                    <p class="mt-1" data-t="footer_copy">© 2024 Moza Home Food. Seluruh Hak Cipta Dilindungi.</p>
+                </div>
+                
+                <!-- Socials, Merchants & Halal MUI -->
+                <div class="flex flex-wrap justify-center items-center gap-6 md:gap-8 mt-6 md:mt-0">
+                    <div class="flex items-center space-x-4">
+                        <a href="https://www.instagram.com/" target="_blank" class="merchant-icon bg-pink-50" title="Instagram">
+                            <svg class="w-5 h-5 text-pink-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                        </a>
+                        <a href="https://www.facebook.com/" target="_blank" class="merchant-icon bg-blue-50" title="Facebook">
+                            <svg class="w-5 h-5 text-blue-700" fill="currentColor" viewBox="0 0 24 24"><path d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.495v-9.294h-3.128v-3.622h3.128v-2.671c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.325v-21.35c0-.732-.593-1.325-1.325-1.325z"/></svg>
+                        </a>
+                    </div>
+
+                    <div class="flex items-center space-x-4 border-l border-gray-200 pl-6 h-8">
+                        <a href="https://shopeefood.co.id/" target="_blank" title="Shopee Food">
+                            <img src="https://lh3.googleusercontent.com/d/1UL3A9O4ADVlRBnOuWxtovN4rEoZrii3x" class="merchant-img" alt="Shopee Food">
+                        </a>
+                        <a href="https://gofood.co.id/" target="_blank" title="GoFood">
+                            <img src="https://lh3.googleusercontent.com/d/14FuL0sqnmZCTJuGTMBVn2OhIf9V7P4xV" class="merchant-img" alt="GoFood">
+                        </a>
+                        <a href="https://www.grab.com/id/food/" target="_blank" title="Grab Food">
+                            <img src="https://lh3.googleusercontent.com/d/1IgVQvwjQKIgU_chn8xOd9FUdQxgprxme" class="merchant-img" alt="Grab Food">
+                        </a>
+                    </div>
+
+                    <div class="flex items-center border-l border-gray-200 pl-6">
+                        <img src="https://lh3.googleusercontent.com/d/1oIMOQaV7jckK33DZcg_OeIiBwnvRl2_j" class="h-12 w-auto" alt="Halal MUI">
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const translations = {
+            id: {
+                nav_home: "Beranda", nav_about: "Tentang Kami", nav_services: "Layanan", nav_menu: "Menu", nav_contact: "Kontak",
+                hero_tag: "Cita Rasa Autentik", hero_desc: "Kami menyajikan hidangan pilihan dengan resep turun-temurun pikeun kabagjaan kulawarga.",
+                btn_about: "Cerita Kami", about_title: "Dibuat dengan <br><span class='text-[#E45E05]'>Kasih Sayang</span>",
+                about_quote: "\"Moza Home Food bermula dari keinginan sederhana: berbagi kelezatan masakan ibu kepada semua orang.\"",
+                about_desc: "Berdiri sejak 2018, kami berkomitmen pikeun ngajaga rasa asli. Unggal énjing milih bahan anu pangalusna.",
+                services_title: "Solusi <span class='text-[#E45E05]'>Katering</span> Kami",
+                services_desc: "Kami siap menghadirkan kelezatan khas Moza pikeun unggal momen spesial anjeun.",
+                s1_title: "Katering Rumahan", s1_desc: "Menu bergizi unggal dinten tanpa repot masak pikeun kulawarga.",
+                s2_title: "Katering Kantor", s2_desc: "Solusi praktis pikeun emam beurang rapat atanapi karyawan kantor.",
+                s3_title: "Nasi Tumpeng", s3_desc: "Simbol sukur pikeun perayaan istiméwa sareng rasa anu nikmat.",
+                btn_order: "Pesan Sekarang", menu_title: "Menu Pilihan",
+                m1_title: "Gepuk Sapi", m1_desc: "Daging sapi empuk kalayan bumbu rempah tradisional anu nyerep.",
+                m2_title: "Ayam Goreng", m2_desc: "Hayam goréng bumbu konéng anu gurih disajikeun sareng kremesan.",
+                m3_title: "Sambal Goreng Kentang", m3_desc: "Potongan kentang dadu kalayan bumbu sambel goréng ati anu nikmat.",
+                contact_title: "Hubungi Kami.", footer_copy: "© 2024 Moza Home Food. Seluruh Hak Cipta Dilindungi.",
+                btn_send: "Chat via WhatsApp"
+            },
+            en: {
+                nav_home: "Home", nav_about: "About Us", nav_services: "Services", nav_menu: "Menu", nav_contact: "Contact",
+                hero_tag: "Authentic Taste", hero_desc: "We serve selected dishes with inherited recipes for your family's happiness.",
+                btn_about: "Our Story", about_title: "Crafted with <br><span class='text-[#E45E05]'>Love</span>",
+                about_quote: "\"Moza Home Food started from a simple wish: to share the deliciousness of mother's cooking.\"",
+                about_desc: "Founded in 2018, we are committed to maintaining authentic flavors. Best ingredients picked daily.",
+                services_title: "Our <span class='text-[#E45E05]'>Catering</span> Solutions",
+                services_desc: "Ready to bring Moza's signature flavors to your every special moment.",
+                s1_title: "Home Catering", s1_desc: "Nutritious daily menus without the hassle of cooking for families.",
+                s2_title: "Office Catering", s2_desc: "Practical lunch solutions for meetings or office employees.",
+                s3_title: "Tumpeng Rice", s3_desc: "Symbol of gratitude for special celebrations with delicious taste.",
+                btn_order: "Order Now", menu_title: "Selected Menu",
+                m1_title: "Beef Gepuk", m1_desc: "Tender beef with traditional infused spices that perfectly marinate.",
+                m2_title: "Fried Chicken", m2_desc: "Savory yellow-spiced fried chicken served with crispy crumbs.",
+                m3_title: "Spicy Potato", m3_desc: "Diced potatoes in delicious liver chili stir-fry sauce.",
+                contact_title: "Contact Us.", footer_copy: "© 2024 Moza Home Food. All Rights Reserved.",
+                btn_send: "Chat via WhatsApp"
+            },
+            cn: {
+                nav_home: "首页", nav_about: "关于我们", nav_services: "服务", nav_menu: "菜单", nav_contact: "联系",
+                hero_tag: "地道风味", hero_title: "把 <br><span class='text-[#E45E05]'>家庭厨房</span> 的温馨带到餐桌上。",
+                hero_desc: "我们 provide 祖传秘方的精选菜肴，为您带来幸福。",
+                btn_about: "我们的故事", about_title: "用心 <br><span class='text-[#E45E05]'>雕琢</span>",
+                about_quote: "“Moza Home Food 源于一个愿望：与大家分享妈妈的味道。”",
+                about_desc: "成立于2018年，致力保持正宗。每日精选优质食材。",
+                services_title: "我们的 <span class='text-[#E45E05]'>餐饮</span> 方案",
+                services_desc: "为您的每一个特别时刻带来 Moza 的招牌美味。",
+                s1_title: "家庭送餐", s1_desc: "为家庭提供每日营养均衡的菜单，无需下厨。",
+                s2_title: "办公室餐饮", s2_desc: "会议或员工午餐的便捷解决方案。",
+                s3_title: "姜黄饭塔", s3_desc: "感恩活动和庆典的特别佳肴，口感绝佳。",
+                btn_order: "立即订购", menu_title: "精选菜单",
+                m1_title: "炖牛肉", m1_desc: "采用传统香料炖制的嫩牛肉，入口即化。",
+                m2_title: "炸鸡", m2_desc: "香浓入味的黄金炸鸡，配以香脆配料。",
+                m3_title: "辣味土豆", m3_desc: "美味的辣味土豆丁，采用特色辣酱调制。",
+                contact_title: "联系我们。", footer_copy: "© 2024 Moza Home Food. 版权所有。",
+                btn_send: "通过 WhatsApp 联系"
+            }
+        };
+
+        function toggleLangMenu(event) {
+            event.stopPropagation();
+            document.getElementById('lang-menu').classList.toggle('hidden');
+        }
+
+        function selectLanguage(lang) {
+            const t = translations[lang];
+            document.querySelectorAll('[data-t]').forEach(el => {
+                const key = el.getAttribute('data-t');
+                if (t[key]) el.innerHTML = t[key];
+            });
+            document.getElementById('current-lang-text').innerText = lang.toUpperCase();
+            document.getElementById('lang-menu').classList.add('hidden');
+            handleScroll();
+        }
+
+        const parallaxWrapper = document.querySelector('.parallax-wrapper');
+        const vinesContainer = document.getElementById('vines-container');
+
+        function handleScroll() {
+            let current = "";
+            let windowHeight = window.innerHeight;
+            let scrollPos = parallaxWrapper.scrollTop;
+
+            // Vine Animation Logic
+            if (scrollPos > 100) {
+                vinesContainer.classList.add('vines-visible');
+            } else {
+                vinesContainer.classList.remove('vines-visible');
+            }
+
+            // Hero Image Parallax (External Control)
+            const heroWrap = document.querySelector('.hero-parallax-img-wrap');
+            if (heroWrap) {
+                heroWrap.style.transform = `translateY(${scrollPos * 0.25}px)`;
+            }
+
+            // Card Image Parallax Logic
+            const parallaxImages = document.querySelectorAll('.parallax-card-img');
+            parallaxImages.forEach(img => {
+                const rect = img.parentElement.getBoundingClientRect();
+                const visiblePct = (windowHeight - rect.top) / (windowHeight + rect.height);
+                const moveY = (visiblePct * 30) - 15;
+                img.style.transform = `translateY(${moveY}%)`;
+            });
+
+            // Scroll Spy logic
+            document.querySelectorAll('section').forEach((section) => {
+                if (scrollPos >= section.offsetTop - (windowHeight / 3)) {
+                    current = section.getAttribute("id");
+                }
+            });
+
+            document.querySelectorAll('.nav-link').forEach((link) => {
+                link.classList.toggle("active", link.getAttribute("data-section") === current);
+            });
+
+            // Reveal Animation
+            document.querySelectorAll('.reveal').forEach((el) => {
+                if (el.getBoundingClientRect().top < windowHeight - 150) el.classList.add('active');
+            });
+        }
+
+        parallaxWrapper.addEventListener('scroll', handleScroll);
+        window.addEventListener('load', handleScroll);
+        window.onclick = (e) => { if (!e.target.closest('.lang-dropdown')) document.getElementById('lang-menu').classList.add('hidden'); };
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.onclick = function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth' });
+            };
+        });
+    </script>
+</body>
+</html>
